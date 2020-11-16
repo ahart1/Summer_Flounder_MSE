@@ -331,5 +331,20 @@ for(istate in 1:length(StateList)){
 
 
 
+##### Plot Mngmt Settings Over Time For All States ################
+# Bag size
+library(tidyverse)
+lengthData %>% as_tibble() %>% group_by(State, Year) %>% summarise(medianBag = median(BagSz)) %>% 
+  ggplot() +
+  geom_line(aes(x=Year, y=medianBag, col = State))
 
+# Min size
+lengthData %>% as_tibble() %>% group_by(State, Year) %>% summarise(medianMinSz = median(MinSzIn)) %>% 
+  ggplot() +
+  geom_line(aes(x=Year, y=medianMinSz, col = State))
+
+# Season length
+lengthData %>% as_tibble() %>% group_by(State, Year, Wave) %>% summarise(SeasonLength = median(SeasonDz)) %>% summarise(SeasonLength = sum(SeasonLength)) %>%
+  ggplot() +
+  geom_line(aes(x=Year, y=SeasonLength, col = State))
 
