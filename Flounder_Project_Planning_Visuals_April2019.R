@@ -151,6 +151,14 @@ Plot3DLine
 
 # Mean catch at length over time 
 palette(PlotColors)
+legend_title <- "State"
+annualMeanLength <- Catch %>% # Annual coast-wide mean length of landed summer flounder
+  as_tibble() %>%
+  select(everything(), ForkLength_Inch = Straight.Fork.Length..in., CatchAtLength = Landings..No..at.Length., MinSz = Min.Size..inches., SeasonLength_days = Season..days.) %>% # Change column names
+  group_by(Year,ForkLength_Inch) %>% 
+  dplyr::summarise(CatchAtLength = sum(CatchAtLength)) %>% # there are multiple summarise()/summarize() functions in the world, specify dplyr:: as source to ensure it summarizes by groups
+  mutate(Coast = sum(ForkLength_Inch*CatchAtLength)/sum(CatchAtLength))
+
 Catch %>%
   as_tibble() %>%
   select(everything(), ForkLength_Inch = Straight.Fork.Length..in., CatchAtLength = Landings..No..at.Length., MinSz = Min.Size..inches., SeasonLength_days = Season..days.) %>% # Change column names
@@ -163,11 +171,14 @@ Catch %>%
   distinct() %>%
 ggplot() +
   geom_line(aes(x=Year, y=MeanLength, colour = StateFact)) +
-  scale_color_manual(values = c("#01665e", "#35978f", "#80cdc1", "#c7eae5", "#dfc27d", "#bf812d", "#8c510a", "#543005", "coral2")) +
-  ylab("Mean Catch Length (In.)") +
-  labs(title = "Mean Catch & Discards Length") +
-  theme_minimal()
+  scale_color_manual(legend_title, values = c("#01665e", "#35978f", "#80cdc1", "#c7eae5", "#dfc27d", "#bf812d", "#8c510a", "#543005", "coral2")) +
+  geom_line(data = annualMeanLength, aes(x=Year, y=Coast), color = "black", lwd=1) +
+  ylab("Mean Length (In.)") +
+  labs(title = "Mean Length of Landed Summer Flounder") +
+  theme_classic()
 # Maybe get NEFSC bottom trawl survey data here: https://noaa-edab.github.io/ecodata/reference/nefsc_survey_disaggregated.html
+ggsave(filename = "MeanLandedFlukeLength.png", width = 5, height = 4, units = c("in"), dpi = 700)
+
 
 
 ggplot() + # Single year & state histogram
